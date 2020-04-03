@@ -4,7 +4,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-
+//simple change
 @SuppressWarnings("serial")
 public class Przesuwanko extends JPanel {
 	public JTextField textfield;
