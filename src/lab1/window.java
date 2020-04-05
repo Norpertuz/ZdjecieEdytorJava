@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -607,15 +608,610 @@ public class window {
 		btnImageReflection.setEnabled(false);
 		frame.getContentPane().add(btnImageReflection);
 		
+		JMenuBar mb = new JMenuBar();
+		mb.setBounds(414, 397, 52, 21);
+		frame.getContentPane().add(mb);
+		
 		JMenu filtry = new JMenu("Filters");
 		filtry.setBorder(UIManager.getBorder("Button.border"));
 		
-		filtry.setBounds(414, 397, 89, 23);
+		//filtry.setBounds(414, 397, 89, 23);
 		filtry.setEnabled(false);
-		frame.getContentPane().add(filtry);
+		mb.add(filtry);
 		
-		JMenuItem mntmNewMenuItem = new JMenuItem("jeszczeNie");
+		JMenuItem mntmNewMenuItem = new JMenuItem("Dolnoprzepustowy");
 		filtry.add(mntmNewMenuItem);
+		mntmNewMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//System.out.println("Program Completed");
+				Color kolor;
+				edytowany = null;
+				try {
+					edytowany = ImageIO.read(new File(path));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				int w,h,piksel,r,g,b,rgb,sr=0,sb=0,sg=0;
+				
+				w=obraz.getWidth();
+				h=obraz.getHeight();
+				//i=2 j=2 dlatego ze nie filtruje pikseli krancowych
+				/*
+				 * stosowany filtr:
+				 * [1 1 1]
+				 * [1 1 1]
+				 * [1 1 1]
+				 * */
+			
+				for(int i=2;i<(w-2);i++) {
+					for(int j=2;j<(h-2);j++) {
+						sr=0;
+						sg=0;
+						sb=0;
+						for(int k=-1;k<2;k++) {
+							for(int z=-1;z<2;z++) {
+								/*
+								System.out.println("i= "+i);
+								System.out.println("j= "+j);
+								System.out.println("k= "+k);
+								System.out.println("z= "+z);
+								*/
+							piksel = obraz.getRGB(i+z, j+k);
+							//piksel = obraz.getRGB(2, 14);
+							kolor = new Color(piksel,true);
+							r = kolor.getRed();
+							g = kolor.getGreen();
+							b = kolor.getBlue();
+							sr=(r*1)+sr;
+							sg=(g*1)+sg;
+							sb=(b*1)+sb;
+							}
+						}
+						
+						r=sr/(1+1+1 + 1+1+1 +1+1+1); // "jedynki" to skladowe maski
+						g=sg/(9*1);
+						b=sb/(9*1);
+						/*
+						System.out.println("r= "+r);
+						System.out.println("g= "+g);
+						System.out.println("b= "+b);
+					*/
+						kolor=new Color(r,g,b);
+						rgb=kolor.getRGB();
+						edytowany.setRGB(i, j, rgb);
+					}
+				}
+			
+				lblNewLabel_1.setIcon(new ImageIcon(new ImageIcon(edytowany).getImage().getScaledInstance(300, 330, edytowany.SCALE_SMOOTH)));
+				
+			}
+		});
+		
+		JMenuItem mntmNewMenuItem1 = new JMenuItem("Gornoprzepustowy");
+		filtry.add(mntmNewMenuItem1);
+		
+		mntmNewMenuItem1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//System.out.println("Program Completed");
+				Color kolor;
+				edytowany = null;
+				try {
+					edytowany = ImageIO.read(new File(path));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				int w,h,piksel,r,g,b,rgb,sr=0,sb=0,sg=0;
+				
+				w=obraz.getWidth();
+				h=obraz.getHeight();
+				//i=2 j=2 dlatego ze nie filtruje pikseli krancowych
+				/*
+				 * stosowany filtr:
+				 * 
+				 *
+				 * [-1 -1 -1]
+				 * [-1  9 -1]
+				 * [-1 -1 -1]
+				 * */
+			
+				for(int i=2;i<(w-2);i++) {
+					for(int j=2;j<(h-2);j++) {
+						sr=0;
+						sg=0;
+						sb=0;
+						for(int k=-1;k<2;k++) {
+							for(int z=-1;z<2;z++) {
+								
+							piksel = obraz.getRGB(i+z, j+k);
+							//piksel = obraz.getRGB(2, 14);
+							kolor = new Color(piksel,true);
+							r = kolor.getRed();
+							g = kolor.getGreen();
+							b = kolor.getBlue();
+							if(z==0&&k==0) {
+								sr=(r*10)+sr;
+								sg=(g*10)+sg;
+								sb=(b*10)+sb;
+							}else {
+							sr=(r*(-1))+sr;
+							sg=(g*(-1))+sg;
+							sb=(b*(-1))+sb;
+							}
+							
+							}
+						}
+						/*
+						System.out.println("sr= "+sr);
+						System.out.println("sg= "+sg);
+						System.out.println("sb= "+sb);
+						*/
+						r=sr/((8*(-1))+10); // mamy 8 "minus jedynek" i jedna 9 jako skladowe maski filtra
+						g=sg/((8*(-1))+10);
+						b=sb/((8*(-1))+10);
+						if(r<0) {r=-r;}
+						if(g<0) {g=-g;}
+						if(b<0) {b=-b;}
+						if(r>255) {r=255;}
+						if(g>255) {g=255;}
+						if(b>255) {b=255;}
+							
+						
+						
+						kolor=new Color(r,g,b);
+						rgb=kolor.getRGB();
+						edytowany.setRGB(i, j, rgb);
+					}
+				}
+			
+				lblNewLabel_1.setIcon(new ImageIcon(new ImageIcon(edytowany).getImage().getScaledInstance(300, 330, edytowany.SCALE_SMOOTH)));
+				
+			}
+		});
+		
+		JMenuItem mntmNewMenuItem2 = new JMenuItem("Gauss");
+		filtry.add(mntmNewMenuItem2);
+		mntmNewMenuItem2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				
+				
+				Color kolor;
+				edytowany = null;
+				try {
+					edytowany = ImageIO.read(new File(path));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				int w,h,piksel,r,g,b,rgb,sr=0,sb=0,sg=0;
+				
+				w=obraz.getWidth();
+				h=obraz.getHeight();
+				//i=2 j=2 dlatego ze nie filtruje pikseli krancowych
+				/*
+				 * stosowany filtr:
+				 * 
+		
+				 * [1 2 1]
+				 * [2 4 2]
+				 * [1 2 1]
+				 * */
+				int[][] maska = new int[3][3];
+				maska[0][0] = 1;
+				maska[0][1] = 2;
+				maska[0][2] = 1;
+				maska[1][0] = 2;
+				maska[1][1] = 4;
+				maska[1][2] = 2;
+				maska[2][0] = 1;
+				maska[2][1] = 2;
+				maska[2][2] = 1;
+				for(int i=2;i<(w-2);i++) {
+					for(int j=2;j<(h-2);j++) {
+						sr=0;
+						sg=0;
+						sb=0;
+						for(int k=-1;k<2;k++) {
+							for(int z=-1;z<2;z++) {
+								
+							piksel = obraz.getRGB(i+z, j+k);
+							kolor = new Color(piksel,true);
+							r = kolor.getRed();
+							g = kolor.getGreen();
+							b = kolor.getBlue();
+							
+								sr=(r*maska[z+1][k+1])+sr;
+								sg=(g*maska[z+1][k+1])+sg;
+								sb=(b*maska[z+1][k+1])+sb;
+							
+							
+							}
+						}
+						/*
+						System.out.println("sr= "+sr);
+						System.out.println("sg= "+sg);
+						System.out.println("sb= "+sb);
+						*/
+						r=sr/(1+2+1+2+4+2+1+2+1); // 
+						g=sg/(1+2+1+2+4+2+1+2+1);
+						b=sb/(1+2+1+2+4+2+1+2+1);
+						
+							
+						
+						
+						kolor=new Color(r,g,b);
+						rgb=kolor.getRGB();
+						edytowany.setRGB(i, j, rgb);
+					}
+				}
+				
+				
+				
+				
+				
+		lblNewLabel_1.setIcon(new ImageIcon(new ImageIcon(edytowany).getImage().getScaledInstance(300, 330, edytowany.SCALE_SMOOTH)));
+						
+	}
+});
+
+		JMenuItem mntmNewMenuItem3 = new JMenuItem("Krawedzie poziome");
+		filtry.add(mntmNewMenuItem3);
+		mntmNewMenuItem3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			
+				Color kolor;
+				edytowany = null;
+				try {
+					edytowany = ImageIO.read(new File(path));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				int w,h,piksel,r,g,b,rgb,sr=0,sb=0,sg=0;
+				
+				w=obraz.getWidth();
+				h=obraz.getHeight();
+				//i=2 j=2 dlatego ze nie filtruje pikseli krancowych
+				/*
+				 * stosowany filtr:
+				 * 
+		
+				 * [ 0 0 0]
+				 * [-1 1 0]
+				 * [ 0 0 0]
+				 * */
+				int[][] maska = new int[3][3];
+				maska[0][0] = 0;
+				maska[0][1] = 0;
+				maska[0][2] = 0;
+				maska[1][0] = -1;
+				maska[1][1] = 1;
+				maska[1][2] = 0;
+				maska[2][0] = 0;
+				maska[2][1] = 0;
+				maska[2][2] = 0;
+				for(int i=2;i<(w-2);i++) {
+					for(int j=2;j<(h-2);j++) {
+						sr=0;
+						sg=0;
+						sb=0;
+						for(int k=-1;k<2;k++) {
+							for(int z=-1;z<2;z++) {
+								
+							piksel = obraz.getRGB(i+z, j+k);
+							kolor = new Color(piksel,true);
+							r = kolor.getRed();
+							g = kolor.getGreen();
+							b = kolor.getBlue();
+							
+								sr=(r*maska[z+1][k+1])+sr;
+								sg=(g*maska[z+1][k+1])+sg;
+								sb=(b*maska[z+1][k+1])+sb;
+							
+							
+							}
+						}
+						/*
+						System.out.println("sr= "+sr);
+						System.out.println("sg= "+sg);
+						System.out.println("sb= "+sb);
+						*/
+						r=sr/1; // jeden bo suma wag wynosi zero (wedlug wikipedii)
+						g=sg/1;
+						b=sb/1;
+						
+						//gdy skladowa wchodzi ujemna podobno nalezy zastosowac wartosc bezwzgledna
+						if(r<0) {r=-r;}
+						if(g<0) {g=-g;}
+						if(b<0) {b=-b;}
+						/*
+						System.out.println("r= "+r);
+						System.out.println("g= "+g);
+						System.out.println("b= "+b);	
+						*/
+						
+						kolor=new Color(r,g,b);
+						rgb=kolor.getRGB();
+						edytowany.setRGB(i, j, rgb);
+					}
+				}
+				
+			
+		lblNewLabel_1.setIcon(new ImageIcon(new ImageIcon(edytowany).getImage().getScaledInstance(300, 330, edytowany.SCALE_SMOOTH)));
+						
+			
+			
+			
+			}	
+		});
+		
+		JMenuItem mntmNewMenuItem4 = new JMenuItem("Krawedzie pionowe");
+		filtry.add(mntmNewMenuItem4);
+		mntmNewMenuItem4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Color kolor;
+				edytowany = null;
+				try {
+					edytowany = ImageIO.read(new File(path));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				int w,h,piksel,r,g,b,rgb,sr=0,sb=0,sg=0;
+				
+				w=obraz.getWidth();
+				h=obraz.getHeight();
+				//i=2 j=2 dlatego ze nie filtruje pikseli krancowych
+				/*
+				 * stosowany filtr:
+				 * 
+		
+				 * [ 0 -1 0]
+				 * [ 0  1 0]
+				 * [ 0  0 0]
+				 * */
+				int[][] maska = new int[3][3];
+				maska[0][0] = 0;
+				maska[0][1] = -1;
+				maska[0][2] = 0;
+				maska[1][0] = 0;
+				maska[1][1] = 1;
+				maska[1][2] = 0;
+				maska[2][0] = 0;
+				maska[2][1] = 0;
+				maska[2][2] = 0;
+				for(int i=2;i<(w-2);i++) {
+					for(int j=2;j<(h-2);j++) {
+						sr=0;
+						sg=0;
+						sb=0;
+						for(int k=-1;k<2;k++) {
+							for(int z=-1;z<2;z++) {
+								
+							piksel = obraz.getRGB(i+z, j+k);
+							kolor = new Color(piksel,true);
+							r = kolor.getRed();
+							g = kolor.getGreen();
+							b = kolor.getBlue();
+							
+								sr=(r*maska[z+1][k+1])+sr;
+								sg=(g*maska[z+1][k+1])+sg;
+								sb=(b*maska[z+1][k+1])+sb;
+							
+							
+							}
+						}
+						/*
+						System.out.println("sr= "+sr);
+						System.out.println("sg= "+sg);
+						System.out.println("sb= "+sb);
+						*/
+						r=sr/1; // jeden bo suma wag wynosi zero (wedlug wikipedii)
+						g=sg/1;
+						b=sb/1;
+						
+						//gdy skladowa wchodzi ujemna podobno nalezy zastosowac wartosc bezwzgledna
+						if(r<0) {r=-r;}
+						if(g<0) {g=-g;}
+						if(b<0) {b=-b;}
+						/*
+						System.out.println("r= "+r);
+						System.out.println("g= "+g);
+						System.out.println("b= "+b);	
+						*/
+						
+						kolor=new Color(r,g,b);
+						rgb=kolor.getRGB();
+						edytowany.setRGB(i, j, rgb);
+					}
+				}
+				
+			
+		lblNewLabel_1.setIcon(new ImageIcon(new ImageIcon(edytowany).getImage().getScaledInstance(300, 330, edytowany.SCALE_SMOOTH)));
+			
+		
+			}	
+		});
+
+		JMenuItem mntmNewMenuItem5 = new JMenuItem("Krawedzie ukosne");
+		filtry.add(mntmNewMenuItem5);
+		mntmNewMenuItem5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				Color kolor;
+				edytowany = null;
+				try {
+					edytowany = ImageIO.read(new File(path));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				int w,h,piksel,r,g,b,rgb,sr=0,sb=0,sg=0;
+				
+				w=obraz.getWidth();
+				h=obraz.getHeight();
+				//i=2 j=2 dlatego ze nie filtruje pikseli krancowych
+				/*
+				 * stosowany filtr:
+				 * 
+				 * [ -1 0 0]
+				 * [ 0  1 0]
+				 * [ 0  0 0]
+				 * */
+				int[][] maska = new int[3][3];
+				maska[0][0] = -1;
+				maska[0][1] = 0;
+				maska[0][2] = 0;
+				maska[1][0] = 0;
+				maska[1][1] = 1;
+				maska[1][2] = 0;
+				maska[2][0] = 0;
+				maska[2][1] = 0;
+				maska[2][2] = 0;
+				for(int i=2;i<(w-2);i++) {
+					for(int j=2;j<(h-2);j++) {
+						sr=0;
+						sg=0;
+						sb=0;
+						for(int k=-1;k<2;k++) {
+							for(int z=-1;z<2;z++) {
+								
+							piksel = obraz.getRGB(i+z, j+k);
+							kolor = new Color(piksel,true);
+							r = kolor.getRed();
+							g = kolor.getGreen();
+							b = kolor.getBlue();
+							
+								sr=(r*maska[z+1][k+1])+sr;
+								sg=(g*maska[z+1][k+1])+sg;
+								sb=(b*maska[z+1][k+1])+sb;
+							
+							
+							}
+						}
+						/*
+						System.out.println("sr= "+sr);
+						System.out.println("sg= "+sg);
+						System.out.println("sb= "+sb);
+						*/
+						r=sr/1; // jeden bo suma wag wynosi zero (wedlug wikipedii)
+						g=sg/1;
+						b=sb/1;
+						
+						//gdy skladowa wchodzi ujemna podobno nalezy zastosowac wartosc bezwzgledna
+						if(r<0) {r=-r;}
+						if(g<0) {g=-g;}
+						if(b<0) {b=-b;}
+						/*
+						System.out.println("r= "+r);
+						System.out.println("g= "+g);
+						System.out.println("b= "+b);	
+						*/
+						
+						kolor=new Color(r,g,b);
+						rgb=kolor.getRGB();
+						edytowany.setRGB(i, j, rgb);
+					}
+				}
+				
+			
+		lblNewLabel_1.setIcon(new ImageIcon(new ImageIcon(edytowany).getImage().getScaledInstance(300, 330, edytowany.SCALE_SMOOTH)));
+			
+				
+			}	
+		});
+		
+		JMenuItem mntmNewMenuItem6 = new JMenuItem("Laplace'a");
+		filtry.add(mntmNewMenuItem6);
+		mntmNewMenuItem6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				Color kolor;
+				edytowany = null;
+				try {
+					edytowany = ImageIO.read(new File(path));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				int w,h,piksel,r,g,b,rgb,sr=0,sb=0,sg=0;
+				
+				w=obraz.getWidth();
+				h=obraz.getHeight();
+				//i=2 j=2 dlatego ze nie filtruje pikseli krancowych
+				/*
+				 * stosowany filtr:
+				 * 
+				 * [
+					-1	-1	-1
+					-1	8	-1
+					-1	-1	-1
+					]
+				 * */
+				int[][] maska = new int[3][3];
+				maska[0][0] = -1;
+				maska[0][1] = -1;
+				maska[0][2] = -1;
+				maska[1][0] = -1;
+				maska[1][1] = 8;
+				maska[1][2] = -1;
+				maska[2][0] = -1;
+				maska[2][1] = -1;
+				maska[2][2] = -1;
+				for(int i=2;i<(w-2);i++) {
+					for(int j=2;j<(h-2);j++) {
+						sr=0;
+						sg=0;
+						sb=0;
+						for(int k=-1;k<2;k++) {
+							for(int z=-1;z<2;z++) {
+								
+							piksel = obraz.getRGB(i+z, j+k);
+							kolor = new Color(piksel,true);
+							r = kolor.getRed();
+							g = kolor.getGreen();
+							b = kolor.getBlue();
+							
+								sr=(r*maska[z+1][k+1])+sr;
+								sg=(g*maska[z+1][k+1])+sg;
+								sb=(b*maska[z+1][k+1])+sb;
+							
+							
+							}
+						}
+						/*
+						System.out.println("sr= "+sr);
+						System.out.println("sg= "+sg);
+						System.out.println("sb= "+sb);
+						*/
+						r=sr/1; // jeden bo suma wag wynosi zero (wedlug wikipedii)
+						g=sg/1;
+						b=sb/1;
+						
+						if(r<0) {r=-r;}
+						if(g<0) {g=-g;}
+						if(b<0) {b=-b;}
+						if(r>255) {r=255;}
+						if(g>255) {g=255;}
+						if(b>255) {b=255;}
+						
+						
+						kolor=new Color(r,g,b);
+						rgb=kolor.getRGB();
+						edytowany.setRGB(i, j, rgb);
+					}
+				}
+				
+			
+		lblNewLabel_1.setIcon(new ImageIcon(new ImageIcon(edytowany).getImage().getScaledInstance(300, 330, edytowany.SCALE_SMOOTH)));
+			
+				
+				
+				
+			}	
+		});
 		
 		JButton btnNewButton_5 = new JButton("Compare Images");
 		btnNewButton_5.addActionListener(new ActionListener() {
