@@ -12,6 +12,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -37,7 +39,7 @@ import javax.swing.UIManager;
 
 
 public class window {
-	BufferedImage obraz,edytowany,porownywany_obr;
+	public static BufferedImage obraz,edytowany,porownywany_obr;
 	int value0,value1;
 	private String path,path1;
 	private JFrame frame;
@@ -1259,6 +1261,49 @@ public class window {
 		btnNewButton_5.setEnabled(false);
 		frame.getContentPane().add(btnNewButton_5);
 		
+		
+		JButton btnNewButton_7 = new JButton("Histogram equalization");
+		btnNewButton_7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				try {
+					edytowany = ImageIO.read(new File(path));
+					Histogram.equalizacja(); // tworzy histogram z nowymi poprawionymi wartosciami kanalow R/G/B
+					Histogram.Histogram_create("Histogram - wyrownany");
+					lblNewLabel_1.setIcon(new ImageIcon(new ImageIcon(edytowany).getImage().getScaledInstance(300, 330, obraz.SCALE_SMOOTH)));
+					
+				
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		btnNewButton_7.setBounds(650, 262, 174, 23);
+		frame.getContentPane().add(btnNewButton_7);
+		btnNewButton_7.setEnabled(false);
+		
+		
+		
+		JButton btnNewButton_6 = new JButton("Histogram");
+		btnNewButton_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					edytowany = ImageIO.read(new File(path));
+					btnNewButton_7.setEnabled(true);
+					Histogram.Histogram_create("Histogram");
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}	
+			}
+		});
+		btnNewButton_6.setBounds(650, 228, 174, 23);
+		frame.getContentPane().add(btnNewButton_6);
+		btnNewButton_6.setEnabled(false);
+		
+		
+		
+		
 		JButton btnSelectImage = new JButton("Select Image");
 		btnSelectImage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -1292,6 +1337,7 @@ public class window {
 					btnNewButton_4.setEnabled(true);
 					filtry.setEnabled(true);
 					btnNewButton_5.setEnabled(true);
+					btnNewButton_6.setEnabled(true);
 				}
 				
 				
@@ -1300,6 +1346,8 @@ public class window {
 		});
 		btnSelectImage.setBounds(709, 374, 115, 23);
 		frame.getContentPane().add(btnSelectImage);
+		
+		
 		
 		
 		
