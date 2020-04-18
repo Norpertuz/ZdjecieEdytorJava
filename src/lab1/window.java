@@ -8,6 +8,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -18,6 +19,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -34,6 +36,9 @@ import java.awt.Font;
 import javax.swing.JMenuItem;
 import javax.swing.border.TitledBorder;
 import javax.swing.UIManager;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.Cursor;
 
 
 
@@ -42,7 +47,10 @@ public class window {
 	public static BufferedImage obraz,edytowany,porownywany_obr;
 	int value0,value1;
 	private String path,path1;
+	private String pathfc=".\\";
+	//pathfc="H:\\temp\\java_img_editor_images\\";
 	private JFrame frame;
+	private boolean lejbelsaktiw=false;
 
 	/**
 	 * Launch the application.
@@ -91,20 +99,26 @@ public class window {
 		
 		
 		frame = new JFrame();
+		frame.setResizable(false);
 		frame.setBounds(100, 100, 850, 481);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		JLabel lblNewLabel = new JLabel("Wybrany obraz");
+		lblNewLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		lblNewLabel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		//lblNewLabel.setIcon(new ImageIcon("X:\\lab1\\src\\img1.jpg"));
 		lblNewLabel.setBounds(10, 11, 300, 330);
 		frame.getContentPane().add(lblNewLabel);
+		lblNewLabel.setEnabled(false);
 		
 		JLabel lblNewLabel_1 = new JLabel("Obraz zmieniony");
+		lblNewLabel_1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		lblNewLabel_1.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		lblNewLabel_1.setBounds(340, 11, 300, 330);
 		frame.getContentPane().add(lblNewLabel_1);
+		lblNewLabel_1.setEnabled(false);
+		
 		
 		JSlider binarny_slider = new JSlider();
 		binarny_slider.setBounds(650, 31, 174, 26);
@@ -160,7 +174,11 @@ public class window {
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					ImageIO.write(edytowany, "png", new File("image.png"));
+					Random r = new Random();
+					int save_int=r.nextInt(5691);
+					 LocalDate myObj = LocalDate.now();
+					
+					ImageIO.write(edytowany, "png", new File(pathfc+"edited"+myObj+String.valueOf(save_int)+".png"));
 				} catch (IOException esave) {
 					esave.printStackTrace();
 				}
@@ -1219,7 +1237,7 @@ public class window {
 		btnNewButton_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				JFileChooser fc = new JFileChooser();
+				JFileChooser fc = new JFileChooser(pathfc);
 				int dajlog = fc.showOpenDialog(null);
 				if (dajlog == JFileChooser.APPROVE_OPTION) {
 					File do_porownania = fc.getSelectedFile();
@@ -1267,6 +1285,7 @@ public class window {
 			public void actionPerformed(ActionEvent e) {
 				
 				try {
+					
 					edytowany = ImageIO.read(new File(path));
 					Histogram.equalizacja(); // tworzy histogram z nowymi poprawionymi wartosciami kanalow R/G/B
 					Histogram.Histogram_create("Histogram - wyrownany");
@@ -1302,27 +1321,72 @@ public class window {
 		btnNewButton_6.setEnabled(false);
 		
 		
+/////////////////listenery dla klikniecia na obrazek:
 		
+			lblNewLabel_1.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					if(lejbelsaktiw==true) {
+					JFrame okno = new JFrame();
+					okno.setSize(1024, 768);
+					okno.setResizable(false);
+					okno.setLocationRelativeTo(null);
+					okno.setVisible(true);
+					okno.setTitle("Edited Image");
+					JLabel lejbel = new JLabel("");
+					lejbel.setBounds(141, 11, 168, 20);
+					okno.getContentPane().add(lejbel);
+					lejbel.setIcon(new ImageIcon(new ImageIcon(edytowany).getImage().getScaledInstance(1024, 768, obraz.SCALE_SMOOTH)));
+					}
+					
+				}
+			});
+			
+			lblNewLabel.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					if(lejbelsaktiw==true) {
+					JFrame okno = new JFrame();
+					okno.setSize(1024, 768);
+					okno.setResizable(false);
+					okno.setLocationRelativeTo(null);
+					okno.setVisible(true);
+					okno.setTitle("Original Image");
+					JLabel lejbel = new JLabel("");
+					lejbel.setBounds(141, 11, 168, 20);
+					okno.getContentPane().add(lejbel);
+					lejbel.setIcon(new ImageIcon(new ImageIcon(obraz).getImage().getScaledInstance(1024, 768, obraz.SCALE_SMOOTH)));
+					}
+					
+				}
+			});
+			//koniec listenerow dla obrazkow
 		
 		JButton btnSelectImage = new JButton("Select Image");
 		btnSelectImage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 		
-				final JFileChooser fc = new JFileChooser();
+				final JFileChooser fc = new JFileChooser(pathfc);
 				int returnval = fc.showOpenDialog(null);
-				
 				if(returnval==JFileChooser.APPROVE_OPTION) 
-				{
+				{ 
 					
 					try {
+					
+						
+						path=null;
 						obraz = ImageIO.read(new File(fc.getSelectedFile().toString()));
 					    path = fc.getSelectedFile().getAbsolutePath();
+					    System.out.println(path);
 					
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					lblNewLabel.setEnabled(true);
+					lblNewLabel_1.setEnabled(true);
 					lblNewLabel.setIcon(new ImageIcon(new ImageIcon(obraz).getImage().getScaledInstance(300, 330, obraz.SCALE_SMOOTH)));
+					
 					btnNewButton_1.setEnabled(true);
 					generacja.setEnabled(true);
 					binarny_slider.setEnabled(true);
@@ -1338,6 +1402,9 @@ public class window {
 					filtry.setEnabled(true);
 					btnNewButton_5.setEnabled(true);
 					btnNewButton_6.setEnabled(true);
+					lejbelsaktiw=true;
+					
+					
 				}
 				
 				
